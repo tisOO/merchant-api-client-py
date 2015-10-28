@@ -4,7 +4,6 @@ import hashlib
 from email import utils
 from datetime import datetime
 import time
-import urllib
 import json
 from xml.etree import ElementTree
 from dateutil.tz import tzlocal
@@ -12,7 +11,10 @@ try:
     from httplib import HTTPConnection
 except ImportError:
     from http.client import HTTPConnection
-
+try:
+    from urllib import urlencode
+except ImportError:
+    from urllib.parse import urlencode
 from .MerchantAPIException import MerchantAPIException
 from .Entities.PostPackage import PostPackage
 from .Entities.PostBundle import PostBundle
@@ -201,12 +203,12 @@ class MerchantAPI:
         md5_body = hashlib.new("md5")
         if body is None:
             body = ""
-        md5_body.update(body)
+        md5_body.update(body.encode())
         str_to_hash = method + "\n" \
                       + str(md5_body) + "\n" \
                       + "%s" % date + "\n" \
                       + uri
-        return hmac.new(str_to_hash, ).hexdigest()
+        return hmac.new(str_to_hash.encode(), ).hexdigest()
 
     def method_get_order(self, order_id):
         """
@@ -271,7 +273,7 @@ class MerchantAPI:
                 raise ValueError(('Valid values for argument \'%s\' is: ' % transition_status) + ', '.join(self._valid_statuses))
             else:
                 params['transitionStatus'] = transition_status
-        return self._api(self.API_PATH + "orders?" + urllib.urlencode(params), self.METHOD_GET)
+        return self._api(self.API_PATH + "orders?" + urlencode(params), self.METHOD_GET)
 
     def method_get_order_status_reasons(self, order_id):
         """
