@@ -550,7 +550,7 @@ class MerchantAPI:
         :rtype: Response
         :raise: ValueError
         """
-        if isinstance(offers, dict):
+        if not isinstance(offers, dict):
             raise ValueError('Argument \'%s\' must be dict' % offers)
         if self.get_data_type() == self.DATA_JSON:
             put_body = json.dumps({
