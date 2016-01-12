@@ -576,6 +576,50 @@ class MerchantAPI:
             raise ValueError("Unknown data type")
         return self._api(self.API_PATH + "offers", self.METHOD_PUT, put_body)
 
+    def method_post_offers(self, yml_id, own_id, city=None):
+        """
+        Получение информации о статусе и цене товаров
+        :param yml_id: Идентификатор YML-файла
+        :param own_id: Собственные идентификаторы товаров магазина
+        :type own_id: list
+        :param city: Город для получения информации по ценам.
+        :return:
+        """
+        if not isinstance(yml_id, int):
+            raise ValueError("Argument \'%s\' must be int" % yml_id)
+        if not isinstance(own_id, list):
+            raise ValueError("Argument \'%s\' must be list" % own_id)
+        if city is not None or not isinstance(city, int):
+            raise ValueError("Argument \'%s\' must be int" % city)
+
+        if self.get_data_type() == self.DATA_JSON:
+            if city is None:
+                post_body = json.dumps(
+                    {
+                        'own_id': own_id,
+                    }
+                )
+            else:
+                post_body = json.dumps(
+                    {
+                        'own_id': own_id,
+                        'city': city
+                    }
+                )
+        elif self.get_data_type() == self.DATA_XML:
+            xml = ElementTree.Element('request')
+            own_ids = ElementTree.SubElement(xml, 'own_id')
+            for o_id in own_id:
+                ElementTree.SubElement(own_ids, 'item').text = o_id
+            if city is not None:
+                ElementTree.SubElement(xml, 'city').text = city
+            post_body = ElementTree.tostring(xml, 'utf-8')
+        else:
+            raise ValueError("Unknown data type")
+
+        return self._api(self.API_PATH + "/api/1.0/offers/{ymlId}".format(orderID=yml_id), self.METHOD_PUT,
+                         post_body)
+
     def _get_body_for_bundle_modification(self, bundle):
         """
         :type bundle: PostBundle
