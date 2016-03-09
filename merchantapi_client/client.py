@@ -155,9 +155,9 @@ class MerchantAPI:
         header = {
             'User-agent': 'Mozilla/5.0 (compatible; Wikimart-MerchantAPIClient/' + self.VERSION + "/python",
             'Accept': 'application/' + self.get_data_type(),
-            'Content-type': 'application/' + self.get_data_type(),
             'X-WM-Date': utils.formatdate(dtimestamp),
-            'X-WM-Authentication': "%s:%s" % (self._access_id, self._generate_signature(uri, method, body, date))
+            'X-WM-Authentication': "%s:%s" % (self._access_id, self._generate_signature(uri, method, body, dtimestamp,
+                                                                                        self._secret_key))
         }
         if method == self.METHOD_GET or method == self.METHOD_DELETE:
             try:
@@ -188,7 +188,7 @@ class MerchantAPI:
         return response
 
     @staticmethod
-    def _generate_signature(uri, method, body, date):
+    def _generate_signature(uri, method, body, date, secret_key):
         """
         :type uri: str
         :type method: str
@@ -205,10 +205,11 @@ class MerchantAPI:
             body = ""
         md5_body.update(body.encode())
         str_to_hash = method + "\n" \
-                      + str(md5_body) + "\n" \
-                      + "%s" % date + "\n" \
+                      + str(md5_body.hexdigest()) + "\n" \
+                      + "%s" % utils.formatdate(date) + "\n" \
                       + uri
-        return hmac.new(str_to_hash.encode(), ).hexdigest()
+
+        return hmac.new(secret_key, str_to_hash.encode(), hashlib.sha1).hexdigest()
 
     def method_get_order(self, order_id):
         """

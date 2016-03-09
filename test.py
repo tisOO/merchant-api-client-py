@@ -19,11 +19,11 @@ def print_response(response):
     print(response.get_error())
     print(response.get_data())
 
-mapi = MerchantAPI("merchant-api.n", "14361969952145", "TR9UO+lQz/mJR3vpRgFHyg", MerchantAPI.DATA_JSON)
+mapi = MerchantAPI("merchant.wikimart.ru", "APP_ID", "SECRET_KEY", MerchantAPI.DATA_JSON)
 
 response = mapi.method_get_order_list(10, 1)
 print_response(response)
-#
+
 package = PostPackage(
     "ems", "ZX0123456789", [
         PostPackageItem("Laptop NoName 13", 1), PostPackageItem("Flash drive 16Gb", 3)
