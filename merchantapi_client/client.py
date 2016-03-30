@@ -196,10 +196,9 @@ class MerchantAPI:
         :type date: datetime
         :rtype: str
         """
-        if isinstance(date, datetime):
+        if not isinstance(date, float):
             dtuple = date.timetuple()
-            dtimestamp = time.mktime(dtuple)
-            date = utils.formatdate(dtimestamp)
+            date = time.mktime(dtuple)
         md5_body = hashlib.new("md5")
         if body is None:
             body = ""
